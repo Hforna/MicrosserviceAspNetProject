@@ -1,11 +1,21 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Catalog.Api.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using MongoDB.Driver;
 
 namespace Catalog.Api.Data
 {
-    public class CatalogDbContext : DbContext
+    public class CatalogDbContext : ICatalogDbContext
     {
-        public CatalogDbContext(DbContextOptions dbContext) : base(dbContext)
+        private IMongoDatabase _database;
+
+        public CatalogDbContext(IConfiguration configuration)
         {
+            var mongoUrl = MongoUrl.Create(configuration.GetConnectionString("mongoConnection"));
+            var client = new MongoClient(configuration.GetConnectionString("mongoConnection"));
+            _database = client.GetDatabase(mongoUrl.DatabaseName);
         }
+
+        public IMongoCollection<Product> Products => _database.GetCollection<Product>("products");
     }
 }
