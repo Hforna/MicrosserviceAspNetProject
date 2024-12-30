@@ -1,0 +1,33 @@
+services:
+  catalog.api:
+    image: ${DOCKER_REGISTRY-}catalogapi
+    build:
+      context: .
+      dockerfile: Catalog/Catalog.Api/Dockerfile
+
+  techecommerce:
+    image: ${DOCKER_REGISTRY-}techecommerce
+    build:
+      context: .
+      dockerfile: TechEcommerce/Dockerfile
+
+  mongoserver:
+   image: mongo:latest
+   container_name: mongoserver
+   restart: always
+   ports:
+    - "27017:27017"
+   volumes: 
+    - mongodb_data:/data/db/
+   networks:
+    - backend
+   environment:
+    MONGO_INITDB_DATABASE: catalog
+
+
+networks:    
+  backend:
+    name: backend
+
+volumes:
+  mongodb_data:
