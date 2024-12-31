@@ -1,5 +1,6 @@
 ﻿using Catalog.Api.Data;
 using Catalog.Api.Entities;
+using Catalog.Api.Enums;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 
@@ -13,6 +14,21 @@ namespace Catalog.Api.Repositories
         public async Task AddProduct(Product product)
         {
             await _dbContext.Products.InsertOneAsync(product);
+        }
+
+        public async Task DeleteProduct(string id)
+        {
+            var product = _dbContext.Products.FindAsync(x => x.Id == id);
+
+            if (product == null)
+                throw new Exception("Product not found");
+
+            await _dbContext.Products.DeleteOneAsync(id);
+        }
+
+        public async Task DeleteProductByCategory(CategorysEnum category)
+        {
+            await _dbContext.Products.DeleteManyAsync(d => d.Category == category.ToString());
         }
 
         public async Task<Product> GetProductById(string Id)
