@@ -25,9 +25,19 @@ services:
     MONGO_INITDB_DATABASE: catalog
 
 
+  cart.api:
+    image: ${DOCKER_REGISTRY-}cartapi
+    build:
+      context: .
+      dockerfile: Cart/Cart.Api/Dockerfile
+   
+  cartdb:
+    image: redis:alpine
+
 networks:    
   backend:
     name: backend
 
 volumes:
   mongodb_data:
+
