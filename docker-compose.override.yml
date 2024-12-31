@@ -28,7 +28,8 @@ services:
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
     depends_on:
      - mongoserver 
-    
+   
+  
 
   cart.api:
     environment:
@@ -45,6 +46,22 @@ services:
       - backend
     depends_on:
       - cartdb
+
+  discount.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+    ports:
+      - "8080"
+      - "8081"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+    depends_on: 
+     - discountdb
+    networks:
+     - backend
   
   cartdb:
     container_name: cartdb
@@ -53,3 +70,32 @@ services:
      - 6379:6379
     networks:
      - backend
+  
+  discountdb:
+    container_name: discountdb
+    restart: always
+    ports:
+     - 5432:5432
+    volumes:
+     - discount_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=
+      - POSTGRES_DB=DiscountDb
+    networks:
+      - backend
+  
+  discountdbadmin:
+     container_name: discountdbadmin
+     restart: always
+     ports:
+      - 5050:80
+     volumes:
+      - discountadmin_data:/root/.pgadmin
+     environment:
+      - PGADMIN_DEFAULT_EMAIL=
+      - PGADMIN_DEFAULT_PASSWORD=
+     networks:
+      - backend
+       
+

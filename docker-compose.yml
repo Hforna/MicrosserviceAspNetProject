@@ -34,10 +34,25 @@ services:
   cartdb:
     image: redis:alpine
 
+  discount.api:
+    image: ${DOCKER_REGISTRY-}discountapi
+    build:
+      context: .
+      dockerfile: Discount/Discount.Api/Dockerfile
+
+  discountdb:
+     image: postgres
+
+  discountdbadmin:
+     image: dpage/pgadmin4
+
 networks:    
   backend:
     name: backend
 
 volumes:
   mongodb_data:
+  discount_data:
+  discountadmin_data:
+
 
