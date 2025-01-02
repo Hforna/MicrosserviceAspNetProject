@@ -13,11 +13,13 @@ namespace Cart.Api.Controllers
     {
         private readonly ICartReadOnly _readOnly;
         private readonly ICartWriteOnly _writeOnly;
+        private readonly IHttpClientFactory _httpClient;
 
-        public CartController(ICartReadOnly readOnly, ICartWriteOnly writeOnly)
+        public CartController(ICartReadOnly readOnly, ICartWriteOnly writeOnly, IHttpClientFactory httpClient)
         {
             _readOnly = readOnly;
             _writeOnly = writeOnly;
+            _httpClient = httpClient;
         }
 
         [HttpGet("{userId}")]
@@ -31,13 +33,13 @@ namespace Cart.Api.Controllers
         [HttpGet("add-product")]
         public async Task<IActionResult> AddProductToCart([FromQuery]long userId, [FromQuery]string productId)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, $"http://catalog:8085/api/catalog/product-id/{productId}");
-            using(var client = new HttpClient())
-            {
-                var send = await client.SendAsync(request);
-                var content = await send.Content.ReadFromJsonAsync<string>();
+            var clientR = _httpClient.CreateClient("catalog");
 
-                if(send.IsSuccessStatusCode)
+            using(var client = await clientR.GetAsync($"api/catalog/product-id/{productId}"))
+            {
+                var content = await client.Content.ReadAsStringAsync();
+
+                if(client.IsSuccessStatusCode)
                 {
                     var response = JsonSerializer.Deserialize<ProductResponse>(content);
                     var product = new ShoppingProduct()
